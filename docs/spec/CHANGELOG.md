@@ -2,6 +2,10 @@
 
 Newest version first. The first heading must show the current version.
 
+## 0.6.0 (2026-11-18)
+
+- Added the Vercel deploy job. It runs after verification (REQ-DEP-003).
+
 ## 0.5.0 (2026-11-18)
 
 - Added the deploy pipeline for GitHub Pages (REQ-DEP-002).

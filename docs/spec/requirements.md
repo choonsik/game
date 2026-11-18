@@ -1,6 +1,6 @@
 # Requirements
 
-Spec version: 0.5.0
+Spec version: 0.6.0
 
 Each row has one requirement. The ID never changes. The text of a row changes only with a version increase.
 
@@ -73,6 +73,7 @@ Each automatic test carries its requirement ID in its title, for example `[REQ-C
 |---|---|---|---|---|
 | REQ-DEP-001 | The production build must run from a subpath of a static host. It must need only static files. | implemented | 0.5.0 | auto |
 | REQ-DEP-002 | The pipeline must run all verification before each deploy. A failed check must stop the deploy. | implemented | 0.5.0 | auto |
+| REQ-DEP-003 | The pipeline must also deploy the site to Vercel from the root path. This deploy must run only after verification passes. | implemented | 0.6.0 | auto |
 
 ## Publication
 

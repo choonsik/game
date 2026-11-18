@@ -43,6 +43,8 @@ Set up once: open the repository settings, open Pages, and set Source to GitHub 
 
 The site address is https://choonsik.github.io/game/.
 
+The pipeline also deploys to Vercel. Add the repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`. Without them, the Vercel job skips itself. Do not connect the repository with the Vercel Git integration, because it deploys without verification.
+
 ## Spec
 
 The spec, the requirements, and the change rules are in [docs/spec/SPEC.md](docs/spec/SPEC.md). The spec, the tests, and the code share one version number.

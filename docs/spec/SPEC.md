@@ -1,6 +1,6 @@
 # Manhattan Heli: Specification
 
-Spec version: 0.5.0
+Spec version: 0.6.0
 
 The requirement list is in [requirements.md](requirements.md). This file gives the context for those requirements.
 
@@ -112,14 +112,19 @@ The e2e run saves a screenshot in `artifacts/`. Manual checks are in [MANUAL-CHE
 
 The host is GitHub Pages. The site address is https://choonsik.github.io/game/.
 
-The pipeline is in `.github/workflows/deploy.yml`. It has two jobs:
+The game also runs on Vercel. Vercel serves the site from the root path, so `BASE_PATH` stays unset there.
+
+The pipeline is in `.github/workflows/deploy.yml`. It has three jobs:
 
 1. `verify` runs `npm run verify` on each push and each pull request.
 2. `deploy` builds the site and publishes it. It runs only after `verify` passes, and only for the main branch.
+3. `deploy-vercel` deploys the site to Vercel. It has the same conditions as `deploy`. It skips itself if the Vercel secrets are not set.
 
 The build reads `BASE_PATH` from the environment. The pipeline sets it to the repository name. Code must read data through `import.meta.env.BASE_URL`. Code must not use a path that starts with a slash.
 
-One setting is manual. In the repository settings, open Pages and set Source to GitHub Actions.
+Vercel needs three repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`. Do not use the Vercel Git integration. It deploys without verification.
+
+One GitHub setting is manual. In the repository settings, open Pages and set Source to GitHub Actions.
 
 ## 9. Text rules
 

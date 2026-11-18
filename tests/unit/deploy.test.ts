@@ -24,4 +24,9 @@ describe('deployment pipeline', () => {
     expect(main).toContain('import.meta.env.BASE_URL');
     expect(main).not.toMatch(/loadCity\(['"]\//);
   });
+
+  it('[REQ-DEP-003] deploys to Vercel only after verification and only from main', () => {
+    expect(wf).toMatch(/deploy-vercel:\s+needs: verify\s+if: github\.ref == 'refs\/heads\/main'/);
+    expect(wf).toContain('vercel deploy --prebuilt --prod');
+  });
 });

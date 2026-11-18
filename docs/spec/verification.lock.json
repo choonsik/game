@@ -1,6 +1,6 @@
 {
-  "version": "0.5.0",
-  "requirementsHash": "cbdbd4fffe03cb30",
+  "version": "0.6.0",
+  "requirementsHash": "adbe6aad1480b0c9",
   "tests": {
     "REQ-COL-001": [
       "hits inside the outline",
@@ -43,6 +43,9 @@
     "REQ-DEP-002": [
       "deploys only from main and not from a pull request",
       "runs the full verification before the deploy job"
+    ],
+    "REQ-DEP-003": [
+      "deploys to Vercel only after verification and only from main"
     ],
     "REQ-GAME-001": [
       "starts in play mode at the start altitude"
