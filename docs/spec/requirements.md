@@ -1,6 +1,6 @@
 # Requirements
 
-Spec version: 0.4.0
+Spec version: 0.5.0
 
 Each row has one requirement. The ID never changes. The text of a row changes only with a version increase.
 
@@ -66,6 +66,13 @@ Each automatic test carries its requirement ID in its title, for example `[REQ-C
 | REQ-COL-001 | A crash occurs when the 4 m helicopter sphere touches a building outline inside the building height range. | implemented | 0.1.0 | auto |
 | REQ-COL-002 | Contact with the ground must cause a crash. | implemented | 0.1.0 | auto |
 | REQ-COL-003 | The helicopter must stay inside the map limit plus 60 m. The altitude limit is 450 m. | implemented | 0.1.0 | auto |
+
+## Deployment
+
+| ID | Requirement | Status | Since | Verify |
+|---|---|---|---|---|
+| REQ-DEP-001 | The production build must run from a subpath of a static host. It must need only static files. | implemented | 0.5.0 | auto |
+| REQ-DEP-002 | The pipeline must run all verification before each deploy. A failed check must stop the deploy. | implemented | 0.5.0 | auto |
 
 ## Publication
 

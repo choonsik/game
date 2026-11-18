@@ -35,6 +35,14 @@ npm run verify
 
 The command checks the requirements, the text rules, the types, the unit tests, and the end-to-end test. The end-to-end test needs Chrome or Edge. Set `CHROME_PATH` if the test cannot find the browser.
 
+## Deploy
+
+GitHub Actions deploys the game to GitHub Pages. The pipeline runs `npm run verify` first. It deploys only if all checks pass.
+
+Set up once: open the repository settings, open Pages, and set Source to GitHub Actions.
+
+The site address is https://choonsik.github.io/game/.
+
 ## Spec
 
 The spec, the requirements, and the change rules are in [docs/spec/SPEC.md](docs/spec/SPEC.md). The spec, the tests, and the code share one version number.

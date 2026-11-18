@@ -1,6 +1,6 @@
 {
-  "version": "0.4.0",
-  "requirementsHash": "6e99e4f427a95023",
+  "version": "0.5.0",
+  "requirementsHash": "cbdbd4fffe03cb30",
   "tests": {
     "REQ-COL-001": [
       "hits inside the outline",
@@ -34,6 +34,15 @@
     ],
     "REQ-CTL-004": [
       "puts the camera behind and above the helicopter"
+    ],
+    "REQ-DEP-001": [
+      "builds with the repository name as the base path",
+      "reads the map data through the base URL and not through a root path",
+      "runs the production build from the /game/ subpath"
+    ],
+    "REQ-DEP-002": [
+      "deploys only from main and not from a pull request",
+      "runs the full verification before the deploy job"
     ],
     "REQ-GAME-001": [
       "starts in play mode at the start altitude"

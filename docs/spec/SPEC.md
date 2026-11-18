@@ -1,6 +1,6 @@
 # Manhattan Heli: Specification
 
-Spec version: 0.4.0
+Spec version: 0.5.0
 
 The requirement list is in [requirements.md](requirements.md). This file gives the context for those requirements.
 
@@ -108,7 +108,20 @@ Each new feature must not break an old feature. These rules enforce this:
 
 The e2e run saves a screenshot in `artifacts/`. Manual checks are in [MANUAL-CHECKS.md](MANUAL-CHECKS.md).
 
-## 8. Text rules
+## 8. Deployment
+
+The host is GitHub Pages. The site address is https://choonsik.github.io/game/.
+
+The pipeline is in `.github/workflows/deploy.yml`. It has two jobs:
+
+1. `verify` runs `npm run verify` on each push and each pull request.
+2. `deploy` builds the site and publishes it. It runs only after `verify` passes, and only for the main branch.
+
+The build reads `BASE_PATH` from the environment. The pipeline sets it to the repository name. Code must read data through `import.meta.env.BASE_URL`. Code must not use a path that starts with a slash.
+
+One setting is manual. In the repository settings, open Pages and set Source to GitHub Actions.
+
+## 9. Text rules
 
 All player text and all spec text follow [TEXT-RULES.md](TEXT-RULES.md).
 

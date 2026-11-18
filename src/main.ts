@@ -32,7 +32,7 @@ addEventListener('keyup', e => keys.delete(e.code));
 const down = (...c: string[]) => c.some(k => keys.has(k));
 
 // ---------- world ----------
-const city = await loadCity('/data/manhattan.json');
+const city = await loadCity(`${import.meta.env.BASE_URL}data/manhattan.json`);
 scene.add(buildCityMeshes(city));
 const grid = new CollisionGrid(city);
 

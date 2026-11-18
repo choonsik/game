@@ -1,11 +1,14 @@
 // End-to-end harness. Starts the dev server, drives the game through the ?test hook in headless Chrome,
 // and checks behavior and pixels. Every check title starts with a requirement tag, for example [REQ-GAME-001].
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import net from 'node:net';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import puppeteer from 'puppeteer-core';
 import { PNG } from 'pngjs';
 
-const PORT = 5199;
+// Free ports: a stale server from an old run must not block this run.
+const freePort = () => new Promise(res => { const s = net.createServer(); s.listen(0, () => { const p = s.address().port; s.close(() => res(p)); }); });
+const PORT = await freePort();
 const BASE = `http://localhost:${PORT}/`;
 const CHROME = [process.env.CHROME_PATH, 'C:/Program Files/Google/Chrome/Application/chrome.exe',
   'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '/usr/bin/google-chrome', '/usr/bin/chromium'].find(p => p && existsSync(p));
@@ -19,9 +22,22 @@ async function check(title, fn) {
 const assert = (c, m) => { if (!c) throw new Error(m); };
 
 // ---- server ----
-const server = spawn('npx', ['vite', '--port', String(PORT), '--strictPort'], { shell: true, stdio: 'ignore' });
-const stopServer = () => { try { spawn('taskkill', ['/pid', String(server.pid), '/T', '/F'], { shell: true, stdio: 'ignore' }); } catch {} server.kill(); };
-for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE)).ok) break; } catch {} await new Promise(r => setTimeout(r, 500)); }
+const win = process.platform === 'win32';
+const start = args => {
+  const child = spawn('npx', args, { shell: true, stdio: ['ignore', 'pipe', 'pipe'], detached: !win });
+  child.log = '';
+  child.stdout.on('data', d => { child.log += d; });
+  child.stderr.on('data', d => { child.log += d; });
+  return child;
+};
+// Synchronous on purpose: process.exit must not run before the servers are gone.
+const stop = child => { try { win ? spawnSync('taskkill', ['/pid', String(child.pid), '/T', '/F'], { shell: true, stdio: 'ignore' }) : process.kill(-child.pid); } catch {} };
+const waitFor = async (url, child) => { for (let i = 0; i < 120; i++) { try { if ((await fetch(url)).ok) return; } catch {} await new Promise(r => setTimeout(r, 500)); } throw new Error('server did not start: ' + url + ' | ' + (child?.log ?? '').replace(/\s+/g, ' ').slice(-300)); };
+const servers = [];
+const dev = start(['vite', '--port', String(PORT), '--strictPort']);
+servers.push(dev);
+const stopServer = () => servers.forEach(stop);
+await waitFor(BASE, dev);
 
 const browser = await puppeteer.launch({
   executablePath: CHROME, headless: true,
@@ -30,11 +46,11 @@ const browser = await puppeteer.launch({
 });
 const errorsSeen = [];
 
-async function open(query) {
+async function open(query, base = BASE) {
   const page = await browser.newPage();
   page.on('pageerror', e => errorsSeen.push('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error') errorsSeen.push('console: ' + m.text()); });
-  await page.goto(BASE + query, { waitUntil: 'load' });
+  await page.goto(base + query, { waitUntil: 'load' });
   await page.waitForFunction('window.__game && window.__game.city', { timeout: 90000 });
   return page;
 }
@@ -251,6 +267,26 @@ try {
     assert(dark / n < 0.0005, `black pixels ${(100 * dark / n).toFixed(3)} percent`);
     assert(cyan / n > 0.001, `cyan pixels ${(100 * cyan / n).toFixed(3)} percent`);
     assert(orange / n > 0.00005, `orange pixels ${(100 * orange / n).toFixed(3)} percent`);
+  });
+
+  await check('[REQ-DEP-001] runs the production build from the /game/ subpath', async () => {
+    // One output folder for each run: a stale server from an old run can lock an old folder on Windows.
+    const outDir = `artifacts/dist-test-${Date.now()}`;
+    const { spawnSync } = await import('node:child_process');
+    const built = spawnSync('npx', ['vite', 'build', '--base', '/game/', '--outDir', outDir, '--emptyOutDir'], { shell: true, encoding: 'utf8' });
+    assert(built.status === 0, 'build failed: ' + (built.stdout + built.stderr).slice(-300));
+    const html = readFileSync(`${outDir}/index.html`, 'utf8');
+    assert(html.includes('/game/assets/'), 'index.html does not use the /game/ base');
+    const port = await freePort();
+    const preview = start(['vite', 'preview', '--outDir', outDir, '--base', '/game/', '--port', String(port), '--strictPort']);
+    servers.push(preview);
+    await waitFor(`http://localhost:${port}/game/`, preview);
+    const before = errorsSeen.length;
+    const p = await open('?test&autostart', `http://localhost:${port}/game/`);
+    assert((await G(p, 'g.city.buildings.length')) > 2000, 'city data did not load from the subpath');
+    assert((await G(p, 'g.phase')) === 'playing', 'game did not start');
+    await p.close();
+    assert(errorsSeen.length === before, errorsSeen.slice(before).join(' | '));
   });
 
   await check('[REQ-PLAT-001] shows no page errors during the whole run', async () => {

@@ -2,6 +2,13 @@
 
 Newest version first. The first heading must show the current version.
 
+## 0.5.0 (2026-11-18)
+
+- Added the deploy pipeline for GitHub Pages (REQ-DEP-002).
+- Made the build run from a subpath. The data URL now uses the base URL (REQ-DEP-001).
+- The e2e test now builds the site with the /game/ base and plays it.
+- The e2e test now stops its servers on Linux as well as on Windows.
+
 ## 0.4.0 (2026-11-18)
 
 - Added the OpenStreetMap credit on every screen (REQ-MAP-005).
