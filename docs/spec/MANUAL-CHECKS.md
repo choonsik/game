@@ -23,6 +23,3 @@ Do these checks by eye before each release. Each item names its requirement.
 
 1. Make sure that fuel or time limits show on the HUD when a stage has them.
 
-## REQ-MAP-005: credit
-
-1. Make sure that the screen shows the text "OpenStreetMap contributors".

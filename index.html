@@ -20,6 +20,9 @@
   .label { position: absolute; left: 0; top: 0; font-size: 11px; letter-spacing: .1em; color: #8fb8c8; white-space: nowrap; text-shadow: 0 0 6px #0a1018, 0 0 2px #0a1018; transition: opacity .3s; opacity: 0; }
   .label.focus { font-size: 13px; color: #eaf9ff; padding-bottom: 6px; border-bottom: 1px solid rgba(255,179,107,.8); }
   .label small { margin-left: 8px; color: #ffb36b; font-size: 11px; }
+  #credit { text-transform: none; position: absolute; right: 20px; bottom: 16px; font-size: 11px; letter-spacing: .06em; opacity: .55; pointer-events: auto; }
+  #credit a { color: inherit; text-decoration: none; }
+  #credit a:hover { text-decoration: underline; }
   .warn { color: #ff9a5a; }
 </style>
 </head>
@@ -30,6 +33,7 @@
   <div id="arrow"><svg viewBox="-22 -22 44 44"><g id="arrowRot"><path d="M0 -16 L10 12 L0 6 L-10 12 Z" fill="none" stroke="#ffb36b" stroke-width="1.6" stroke-linejoin="round"/></g></svg></div>
   <div id="big"></div>
   <div id="help" class="panel"></div>
+  <div id="credit" class="panel"></div>
 </div>
 <script type="module" src="/src/main.ts"></script>
 </body>

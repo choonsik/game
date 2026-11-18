@@ -1,6 +1,6 @@
 # Manhattan Heli: Specification
 
-Spec version: 0.3.0
+Spec version: 0.4.0
 
 The requirement list is in [requirements.md](requirements.md). This file gives the context for those requirements.
 

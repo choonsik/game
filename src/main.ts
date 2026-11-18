@@ -178,6 +178,7 @@ respawn();
 big(`<b>${STR.title}</b>${STR.titleBody}`);
 if (location.search.includes('autostart')) start(); // dev: skip title screen
 $('help').innerHTML = STR.help;
+$('credit').innerHTML = `<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">${STR.credit}</a>`;
 const clock = new THREE.Clock();
 const arrowRot = $('arrowRot');
 

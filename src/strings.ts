@@ -13,5 +13,6 @@ export const STR = {
   hud: {
     time: 'TIME', alt: 'ALT', speed: 'SPD', crashes: 'CRASHES', dist: 'DIST', altDiff: 'ALT DIFF',
   },
+  credit: 'Map data: OpenStreetMap contributors (ODbL)',
   help: 'W/S: FORWARD/BACK   A/D: TURN   SPACE/SHIFT: CLIMB/DESCEND   R: RESTART   L: NAMES',
 } as const;

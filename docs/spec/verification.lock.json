@@ -1,6 +1,6 @@
 {
-  "version": "0.3.0",
-  "requirementsHash": "96b50e3e2d4efc5c",
+  "version": "0.4.0",
+  "requirementsHash": "6e99e4f427a95023",
   "tests": {
     "REQ-COL-001": [
       "hits inside the outline",
@@ -75,12 +75,22 @@
     "REQ-MAP-004": [
       "comes from one static file and a repeatable script"
     ],
+    "REQ-MAP-005": [
+      "shows the OpenStreetMap credit with a link to the license page",
+      "shows the credit on the title screen"
+    ],
     "REQ-PERF-001": [
       "uses at most 100 draw calls for each frame"
     ],
     "REQ-PLAT-001": [
       "loads a WebGL canvas and static data without errors",
       "shows no page errors during the whole run"
+    ],
+    "REQ-PUB-001": [
+      "declares the license in package.json",
+      "has a LICENSE file with the MIT text and the owner name",
+      "has a NOTICE that names the map data license and the derived file",
+      "has a README with run steps, controls, and the data credit"
     ],
     "REQ-TXT-001": [
       "keeps all player text in ASCII",

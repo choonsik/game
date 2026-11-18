@@ -57,6 +57,10 @@ try {
     assert((await G(title, 'g.phase')) === 'playing', 'ENTER did not start the game');
     assert((await G(title, 'g.labelCount')) > 0, 'labels never appear in this view, so the hiding test proves nothing');
   });
+  await check('[REQ-MAP-005] shows the credit on the title screen', async () => {
+    const t = await title.evaluate(() => document.getElementById('credit').innerText);
+    assert(/OpenStreetMap contributors/.test(t), 'credit: ' + t);
+  });
   await title.close();
 
   // ---------- main play page ----------
@@ -217,6 +221,12 @@ try {
     await new Promise(r => setTimeout(r, 300));
     const calls = await G(page, 'g.drawCalls');
     assert(calls > 0 && calls <= 100, `${calls} draw calls`);
+  });
+
+  await check('[REQ-MAP-005] shows the OpenStreetMap credit with a link to the license page', async () => {
+    const r = await page.evaluate(() => { const a = document.querySelector('#credit a'); return a ? [a.innerText, a.href, getComputedStyle(a).display] : null; });
+    assert(r && /OpenStreetMap contributors/.test(r[0]) && /ODbL/.test(r[0]), 'credit text: ' + r);
+    assert(r[1] === 'https://www.openstreetmap.org/copyright', 'link: ' + r[1]);
   });
 
   await check('[REQ-TXT-001] shows only ASCII player text', async () => {

@@ -1,6 +1,6 @@
 # Requirements
 
-Spec version: 0.3.0
+Spec version: 0.4.0
 
 Each row has one requirement. The ID never changes. The text of a row changes only with a version increase.
 
@@ -38,7 +38,7 @@ Each automatic test carries its requirement ID in its title, for example `[REQ-C
 | REQ-MAP-002 | The map must show roads, parks, and water as lines on the ground. | implemented | 0.2.0 | auto |
 | REQ-MAP-003 | A building with no height data must use a default of 18 m. The data must mark it as unknown. | implemented | 0.2.0 | auto |
 | REQ-MAP-004 | A script must make the map data offline. The game must read one static JSON file. | implemented | 0.1.0 | auto |
-| REQ-MAP-005 | The game must show the OpenStreetMap credit as the ODbL license requires. | planned | 0.3.0 | manual |
+| REQ-MAP-005 | The game must show the OpenStreetMap credit on every screen. The credit must link to the license page. | implemented | 0.3.0 | auto |
 
 ## Visual style
 
@@ -66,6 +66,12 @@ Each automatic test carries its requirement ID in its title, for example `[REQ-C
 | REQ-COL-001 | A crash occurs when the 4 m helicopter sphere touches a building outline inside the building height range. | implemented | 0.1.0 | auto |
 | REQ-COL-002 | Contact with the ground must cause a crash. | implemented | 0.1.0 | auto |
 | REQ-COL-003 | The helicopter must stay inside the map limit plus 60 m. The altitude limit is 450 m. | implemented | 0.1.0 | auto |
+
+## Publication
+
+| ID | Requirement | Status | Since | Verify |
+|---|---|---|---|---|
+| REQ-PUB-001 | The repository must contain a LICENSE file, a README, and a NOTICE with the map data license. | implemented | 0.4.0 | auto |
 
 ## Platform, performance, text
 

@@ -2,6 +2,12 @@
 
 Newest version first. The first heading must show the current version.
 
+## 0.4.0 (2026-11-18)
+
+- Added the OpenStreetMap credit on every screen (REQ-MAP-005).
+- Added README, LICENSE (MIT), and NOTICE with the ODbL data license (REQ-PUB-001).
+- Added the publication check to the unit tests. The text check now covers README.md and NOTICE.md.
+
 ## 0.3.0 (2026-11-18)
 
 - Added this spec, the requirement list, and the change-control rules.

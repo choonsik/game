@@ -34,7 +34,7 @@ function lintMarkdown(file, src) {
   src.split('\n').forEach((raw, i) => {
     if (raw.trim().startsWith('```')) { fence = !fence; return; }
     if (fence || /^\|[\s|:-]+\|?$/.test(raw.trim())) return;
-    let s = raw.replace(/`[^`]*`/g, 'X').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/^[#>\-*\d.\s]+/, '').replace(/\*\*/g, '');
+    let s = raw.replace(/`[^`]*`/g, 'X').replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/^[#>\-*\d.\s]+/, '').replace(/\*\*/g, '');
     const cells = s.startsWith('|') ? s.split('|') : [s];
     for (const c of cells) for (const sentence of c.split(/(?<=[.?])\s+/)) lintUnit(file, i + 1, sentence);
   });
@@ -64,6 +64,7 @@ for (const f of readdirSync(specDir).filter(f => f.endsWith('.md'))) {
   if (f === 'TEXT-RULES.md') { if (/[^\x00-\x7f]/.test(readFileSync(join(specDir, f), 'utf8'))) errors.push(`docs/spec/${f} has a non-ASCII character`); continue; }
   lintMarkdown(`docs/spec/${f}`, readFileSync(join(specDir, f), 'utf8'));
 }
+for (const f of ['README.md', 'NOTICE.md']) lintMarkdown(f, readFileSync(join(root, f), 'utf8'));
 lintStrings('src/strings.ts', readFileSync(join(root, 'src/strings.ts'), 'utf8'));
 lintHtml('index.html', readFileSync(join(root, 'index.html'), 'utf8'));
 
