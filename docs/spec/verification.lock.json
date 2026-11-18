@@ -1,0 +1,108 @@
+{
+  "version": "0.3.0",
+  "requirementsHash": "96b50e3e2d4efc5c",
+  "tests": {
+    "REQ-COL-001": [
+      "hits inside the outline",
+      "hits within the radius of a wall and misses beyond it",
+      "misses above the roof and hits just below the roof line",
+      "reports open ground away from outlines",
+      "respects the minimum height of a raised block"
+    ],
+    "REQ-COL-002": [
+      "crashes when the helicopter touches the ground"
+    ],
+    "REQ-COL-003": [
+      "keeps the helicopter inside the map limit and the altitude limit"
+    ],
+    "REQ-CTL-001": [
+      "back moves the helicopter backward",
+      "forward at yaw 0 moves north (negative z)",
+      "forward at yaw 90 degrees moves east (positive x)",
+      "key D turns right and key A turns left",
+      "key W moves the helicopter forward",
+      "limits forward speed to 55 m/s and backward speed to 18 m/s",
+      "stops after the keys are released"
+    ],
+    "REQ-CTL-002": [
+      "SPACE climbs and SHIFT descends",
+      "climbs with up input and descends with down input"
+    ],
+    "REQ-CTL-003": [
+      "key L hides and shows building names",
+      "key R restarts the mission"
+    ],
+    "REQ-CTL-004": [
+      "puts the camera behind and above the helicopter"
+    ],
+    "REQ-GAME-001": [
+      "starts in play mode at the start altitude"
+    ],
+    "REQ-GAME-002": [
+      "passes the goals in order"
+    ],
+    "REQ-GAME-003": [
+      "restarts at the last checkpoint and counts the crash"
+    ],
+    "REQ-GAME-004": [
+      "shows time and crashes at the destination"
+    ],
+    "REQ-GAME-005": [
+      "shows all HUD fields and the direction arrow"
+    ],
+    "REQ-LBL-001": [
+      "shows at most five labels in any view"
+    ],
+    "REQ-LBL-002": [
+      "shows name and height, or HEIGHT UNKNOWN, on the focus label"
+    ],
+    "REQ-LBL-003": [
+      "has enough named tall buildings for landmark labels"
+    ],
+    "REQ-LBL-004": [
+      "shows no building names on the title screen"
+    ],
+    "REQ-MAP-001": [
+      "has more than 2000 buildings with valid outlines and heights",
+      "keeps all outlines near the map area"
+    ],
+    "REQ-MAP-002": [
+      "has roads, parks, and water"
+    ],
+    "REQ-MAP-003": [
+      "marks unknown heights and gives them 18 m"
+    ],
+    "REQ-MAP-004": [
+      "comes from one static file and a repeatable script"
+    ],
+    "REQ-PERF-001": [
+      "uses at most 100 draw calls for each frame"
+    ],
+    "REQ-PLAT-001": [
+      "loads a WebGL canvas and static data without errors",
+      "shows no page errors during the whole run"
+    ],
+    "REQ-TXT-001": [
+      "keeps all player text in ASCII",
+      "shows only ASCII player text"
+    ],
+    "REQ-VIS-001": [
+      "fills buildings with the background color and offsets the fill behind the lines"
+    ],
+    "REQ-VIS-002": [
+      "draws no black edges and shows cyan and orange lines on screen",
+      "draws top, vertical, and base edges",
+      "has no invalid or black edge color"
+    ],
+    "REQ-VIS-003": [
+      "marks the building lines with the depth-cue shader",
+      "uses depth-cue lines and a fog that ends within 1600 m"
+    ],
+    "REQ-VIS-004": [
+      "makes tall edges brighter than low edges"
+    ],
+    "REQ-VIS-005": [
+      "turns the rotor"
+    ]
+  }
+}

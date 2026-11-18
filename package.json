@@ -1,0 +1,30 @@
+{
+  "name": "manhattan-heli",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "fetch-osm": "node scripts/fetch-osm.mjs",
+    "test": "vitest run",
+    "req:check": "node scripts/check-requirements.mjs",
+    "e2e": "node scripts/e2e.mjs",
+    "verify": "npm run req:check && npm run text:check && tsc && npm test && npm run e2e",
+    "req:lock": "node scripts/check-requirements.mjs --lock",
+    "text:check": "node scripts/check-text.mjs"
+  },
+  "dependencies": {
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/pngjs": "^6.0.5",
+    "@types/three": "^0.187.0",
+    "pngjs": "^7.0.0",
+    "puppeteer-core": "^24.43.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}
