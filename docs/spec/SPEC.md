@@ -1,6 +1,6 @@
 # Manhattan Heli: Specification
 
-Spec version: 0.8.0
+Spec version: 0.9.0
 
 The requirement list is in [requirements.md](requirements.md). This file gives the context for those requirements.
 
@@ -60,6 +60,7 @@ Coordinates: x is east, z is south, y is up. Unit is the meter. The yaw angle 0 
 | Show few building names. | At 14 names the screen was not readable. One focus name and four landmark names are enough. |
 | Make near lines brighter. | The player sees depth. A WebGL line is always 1 pixel wide, so color and fade give the effect. |
 | Load one stage at a time. | Each stage file is 0.4 MB to 1.1 MB. The game loads a stage only when the player selects it. |
+| Load the map behind the title screen. | The player sees the selection at once. A load screen between the key and the title screen was confusing. |
 | Make a tower into four stacked prisms. | The outline of a tower is its base. A solid prism of 330 m over the Eiffel Tower base looks wrong. |
 | Use the English name of a building if OpenStreetMap has one. | The labels in Paris and Tokyo are then easier to read. |
 | Hide a label that is not in Latin letters. | All player text must be ASCII. A name with only accents, for example in Paris, stays as a label without the accents. |

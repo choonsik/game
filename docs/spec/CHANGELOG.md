@@ -2,6 +2,12 @@
 
 Newest version first. The first heading must show the current version.
 
+## 0.9.0 (2026-11-19)
+
+- The up and down arrow keys select a stage on the title screen (REQ-GAME-014).
+- A stage key does not replace the title screen with a load screen. The title screen marks the selected row at once. The map loads behind it. ENTER starts the selected stage (REQ-GAME-016).
+- The game keeps a loaded map. A second selection of the same stage does not load it again.
+
 ## 0.8.0 (2026-11-19)
 
 - Changed the stage list on the title screen. It is easier to read: larger text, key badges, a marked selection, and a dark area behind the text (REQ-GAME-015).

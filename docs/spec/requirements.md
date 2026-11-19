@@ -1,6 +1,6 @@
 # Requirements
 
-Spec version: 0.8.0
+Spec version: 0.9.0
 
 Each row has one requirement. The ID never changes. The text of a row changes only with a version increase.
 
@@ -21,7 +21,8 @@ Each automatic test carries its requirement ID in its title, for example `[REQ-C
 | REQ-GAME-011 | Each checkpoint must be at a named landmark or a real intersection. | planned | 0.3.0 | manual |
 | REQ-GAME-012 | A stage may have a fuel limit or a time limit. | planned | 0.3.0 | manual |
 | REQ-GAME-013 | The game must have four stages in this order: Midtown Manhattan, Lower Manhattan, Paris, and Tokyo. Each stage has a start, three checkpoints, and one destination. | implemented | 0.7.0 | auto |
-| REQ-GAME-014 | The title screen must show the stage name and the stage list. Keys 1 to 4 must select a stage. The URL parameter `stage` must also select a stage. | implemented | 0.7.0 | auto |
+| REQ-GAME-014 | The title screen must show the stage name and the stage list. Keys 1 to 4 and the up and down arrow keys must select a stage. The URL parameter `stage` must also select a stage. | implemented | 0.7.0 | auto |
+| REQ-GAME-016 | When the player selects a stage, the title screen must stay and mark the selected row at once. The map must load behind the title screen. ENTER must start the selected stage. If the map is not ready, the stage must start when it is ready. | implemented | 0.9.0 | auto |
 | REQ-GAME-015 | The stage list must be easy to read. Each row must show its key and the stage name in text of 15 px or more. The selected row must have a different color. A dark area must be behind the title text. | implemented | 0.8.0 | auto |
 
 ## Controls

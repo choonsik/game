@@ -1,7 +1,7 @@
 // All player-facing text. Style: ASD-STE100 (short sentences, active voice, ASCII only).
 // scripts/check-text.mjs lints this file. Do not put UI text anywhere else.
 export const STR = {
-  stageSelect: 'Press 1 to 4 to select a stage.',
+  stageSelect: 'Use the arrow keys or keys 1 to 4 to select a stage.',
   loading: 'Loading the map.',
   titleBody: 'Fly the helicopter to the destination.\nDo not hit a building.',
   startHint: 'Press ENTER or SPACE to start.',

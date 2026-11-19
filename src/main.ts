@@ -22,17 +22,24 @@ addEventListener('resize', () => {
 
 const keys = new Set<string>();
 let phase: 'ready' | 'playing' | 'crashed' | 'won' = 'ready';
-let loading = false;
+let loading = false, loads = 0;
 addEventListener('keydown', e => {
   keys.add(e.code);
   if (e.code === 'Space') e.preventDefault();
-  if (loading) return;
   if (phase === 'ready') {
+    // Title screen: keys only move the selection. The map loads behind the title. ENTER starts.
     const n = /^(Digit|Numpad)(\d)$/.exec(e.code);
     if (n && +n[2] >= 1 && +n[2] <= STAGES.length) { selectStage(+n[2] - 1); return; }
-    if (e.code === 'Enter' || e.code === 'Space') { start(); return; }
+    if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+      e.preventDefault();
+      selectStage((selIdx + (e.code === 'ArrowDown' ? 1 : STAGES.length - 1)) % STAGES.length);
+      return;
+    }
+    if (e.code === 'Enter' || e.code === 'Space') { requestStart(); return; }
+    return;
   }
-  if (e.code === 'Escape' && phase !== 'ready') { toTitle(); return; }
+  if (loading) return;
+  if (e.code === 'Escape') { toTitle(); return; }
   if (e.code === 'KeyR') restart();
   if (phase === 'won' && e.code === 'Enter') restart();
 });
@@ -43,6 +50,17 @@ const down = (...c: string[]) => c.some(k => keys.has(k));
 // One stage at a time. Switching stages removes the old city and builds the new one.
 let city: CityData, grid: CollisionGrid, cityGroup: THREE.Object3D | undefined;
 let stageIdx = Math.max(0, STAGES.findIndex(s => s.id === new URLSearchParams(location.search).get('stage')));
+let selIdx = stageIdx; // the row marked on the title screen; stageIdx is the stage that is built
+let startPending = false; // ENTER was pressed before the selected map was ready
+const cityCache = new Map<string, Promise<CityData>>();
+const fetchCity = (file: string) => {
+  if (!cityCache.has(file)) {
+    const p = loadCity(`${import.meta.env.BASE_URL}data/${file}`);
+    p.catch(() => cityCache.delete(file));
+    cityCache.set(file, p);
+  }
+  return cityCache.get(file)!;
+};
 
 const heli = buildHeliModel();
 scene.add(heli.root);
@@ -83,10 +101,11 @@ const disposeTree = (o: THREE.Object3D) => o.traverse(c => {
 
 const START = new THREE.Vector3();
 async function loadStage(i: number) {
-  loading = true;
+  loads++; loading = true;
   const st = STAGES[i];
   let next: CityData;
-  try { next = await loadCity(`${import.meta.env.BASE_URL}data/${st.file}`); } finally { loading = false; }
+  try { next = await fetchCity(st.file); } finally { loading = --loads > 0; }
+  if (i !== selIdx) return; // the player selected another stage during the load
   // The rest runs in one task, so no key or frame sees a half-built stage.
   if (cityGroup) { scene.remove(cityGroup); disposeTree(cityGroup); }
   waypoints.forEach(w => { scene.remove(w.marker); disposeTree(w.marker); });
@@ -178,21 +197,33 @@ function respawn() {
   heliState.fwd = heliState.vy = heliState.yawRate = 0;
   snapCamera();
 }
-function start() { restart(); }
+function start() { startPending = false; restart(); }
 function titleHtml() {
-  const list = STAGES.map((st, i) => `<div class="stage${i === stageIdx ? ' sel' : ''}"><kbd>${i + 1}</kbd>${st.name}</div>`).join('');
-  return `<b>${STAGES[stageIdx].name}</b>${STR.titleBody}<div class="stages"><div class="hint">${STR.stageSelect}</div>${list}</div><div class="start">${STR.startHint}</div>`;
+  const list = STAGES.map((st, i) => `<div class="stage${i === selIdx ? ' sel' : ''}"><kbd>${i + 1}</kbd>${st.name}</div>`).join('');
+  return `<b>${STAGES[selIdx].name}</b>${STR.titleBody}<div class="stages"><div class="hint">${STR.stageSelect}</div>${list}</div>` +
+    `<div class="start">${startPending ? STR.loading : STR.startHint}</div>`;
 }
 function toTitle() {
   restart();
   phase = 'ready';
+  startPending = false;
   big(titleHtml(), true);
 }
+/** Mark a stage on the title screen and build it behind the title. Resolves when the selected stage is ready. */
 async function selectStage(i: number) {
+  selIdx = i;
+  big(titleHtml(), true);
   if (i === stageIdx) return;
-  big(`<b>${STAGES[i].name}</b>${STR.loading}`);
   await loadStage(i);
-  toTitle();
+  if (i !== selIdx || stageIdx !== i) return;
+  respawn();
+  snapCamera();
+  if (startPending) start();
+}
+function requestStart() {
+  if (selIdx === stageIdx) { start(); return; }
+  startPending = true;
+  big(titleHtml(), true);
 }
 function restart() {
   waypoints.forEach(w => (w.done = false));
@@ -287,7 +318,7 @@ if (location.search.includes('test')) {
     get drawCalls() { return renderer.info.render.calls; },
     get waypoints() { return waypoints; }, get city() { return city; }, get grid() { return grid; },
     get stage() { return STAGES[stageIdx].id; }, get loading() { return loading; },
-    stages: STAGES.map(s => s.id), loadStage: (i: number) => selectStage(i),
+    stages: STAGES.map(s => s.id), loadStage: (i: number) => { toTitle(); return selectStage(i); },
     heli: heliState, scene, camera,
     get rotorAngle() { return heli.rotor.rotation.y; },
     teleport(x: number, y: number, z: number) { heliState.pos.set(x, y, z); heliState.fwd = heliState.vy = 0; },

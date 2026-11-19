@@ -1,6 +1,6 @@
 {
-  "version": "0.8.0",
-  "requirementsHash": "fb37fe648b9d9430",
+  "version": "0.9.0",
+  "requirementsHash": "9d2bc7a0887562ea",
   "tests": {
     "REQ-COL-001": [
       "hits inside the outline",
@@ -75,6 +75,9 @@
     ],
     "REQ-GAME-015": [
       "shows a readable stage list with a marked selection"
+    ],
+    "REQ-GAME-016": [
+      "arrow keys move the selection, the title stays, and ENTER starts the selected stage"
     ],
     "REQ-LBL-001": [
       "shows at most five labels in any view"

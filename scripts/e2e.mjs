@@ -275,11 +275,14 @@ try {
   const NAMES = ['MIDTOWN MANHATTAN', 'LOWER MANHATTAN', 'PARIS', 'TOKYO'];
   const sp = await open('?test');
   const bigTitle = p => p.evaluate(() => document.querySelector('#big b')?.innerText ?? '');
+  const selRow = p => p.evaluate(() => [...document.querySelectorAll('#big .stage')].findIndex(e => e.classList.contains('sel')));
   await check('[REQ-GAME-014] lists all stages on the title screen and selects one with a number key', async () => {
     const t = await sp.evaluate(() => document.getElementById('big').innerText);
     for (const n of NAMES) assert(t.includes(n), 'title screen lacks ' + n);
     assert((await bigTitle(sp)) === NAMES[0], 'default stage name: ' + (await bigTitle(sp)));
     await sp.keyboard.press('Digit3');
+    assert((await selRow(sp)) === 2, 'key 3 did not mark row 3 at once: ' + (await selRow(sp)));
+    assert((await bigTitle(sp)) === 'PARIS', 'title did not stay: ' + (await bigTitle(sp)));
     await sp.waitForFunction('window.__game.stage === "paris" && !window.__game.loading', { timeout: 90000 });
     await G(sp, 'g.step(0.2)');
     assert((await bigTitle(sp)) === 'PARIS', 'title shows ' + (await bigTitle(sp)));
@@ -320,6 +323,26 @@ try {
     assert(r.selBorder !== r.otherBorder, 'selected row has the same border color');
     assert(r.backdrop && r.backdrop !== 'none', 'no dark backdrop behind the title text');
     await sp.screenshot({ path: 'artifacts/screenshot-title.png' });
+  });
+
+  await check('[REQ-GAME-016] arrow keys move the selection, the title stays, and ENTER starts the selected stage', async () => {
+    // Paris (row 3) is selected here. Down: Tokyo. Down again: wraps to Midtown. Up: back to Tokyo.
+    await sp.keyboard.press('ArrowDown');
+    assert((await selRow(sp)) === 3 && (await bigTitle(sp)) === 'TOKYO', 'ArrowDown: row ' + (await selRow(sp)));
+    await sp.keyboard.press('ArrowDown');
+    assert((await selRow(sp)) === 0 && (await bigTitle(sp)) === NAMES[0], 'ArrowDown did not wrap: row ' + (await selRow(sp)));
+    await sp.keyboard.press('ArrowUp');
+    assert((await selRow(sp)) === 3 && (await bigTitle(sp)) === 'TOKYO', 'ArrowUp did not wrap: row ' + (await selRow(sp)));
+    assert((await G(sp, 'g.phase')) === 'ready', 'selection left the title screen');
+    // ENTER at once, maybe before the Tokyo map is ready: the game must start Tokyo, not Paris.
+    await sp.keyboard.press('Enter');
+    await sp.waitForFunction('window.__game.phase === "playing"', { timeout: 90000 });
+    assert((await G(sp, 'g.stage')) === 'tokyo', 'started ' + (await G(sp, 'g.stage')));
+    await G(sp, 'g.step(0.5)');
+    assert((await G(sp, 'g.crashes')) === 0, 'crash at the Tokyo start point');
+    await sp.keyboard.press('Escape');
+    await G(sp, 'g.step(0.1)');
+    assert((await selRow(sp)) === 3 && (await G(sp, 'g.phase')) === 'ready', 'ESC did not show the title with Tokyo marked');
   });
 
   await check('[REQ-GAME-014] selects a stage with the URL parameter stage', async () => {
