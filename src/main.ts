@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { BG, CollisionGrid, buildCityMeshes, loadCity } from './city';
+import { BG, CityData, CollisionGrid, buildCityMeshes, labelName, loadCity } from './city';
+import STAGES from './stages.json';
 import { STR } from './strings';
 import { HELI_RADIUS, HeliState, applyPose, buildHeliModel, stepHeli } from './heli';
 
@@ -21,10 +22,17 @@ addEventListener('resize', () => {
 
 const keys = new Set<string>();
 let phase: 'ready' | 'playing' | 'crashed' | 'won' = 'ready';
+let loading = false;
 addEventListener('keydown', e => {
   keys.add(e.code);
   if (e.code === 'Space') e.preventDefault();
-  if (phase === 'ready' && (e.code === 'Enter' || e.code === 'Space')) start();
+  if (loading) return;
+  if (phase === 'ready') {
+    const n = /^(Digit|Numpad)(\d)$/.exec(e.code);
+    if (n && +n[2] >= 1 && +n[2] <= STAGES.length) { selectStage(+n[2] - 1); return; }
+    if (e.code === 'Enter' || e.code === 'Space') { start(); return; }
+  }
+  if (e.code === 'Escape' && phase !== 'ready') { toTitle(); return; }
   if (e.code === 'KeyR') restart();
   if (phase === 'won' && e.code === 'Enter') restart();
 });
@@ -32,9 +40,9 @@ addEventListener('keyup', e => keys.delete(e.code));
 const down = (...c: string[]) => c.some(k => keys.has(k));
 
 // ---------- world ----------
-const city = await loadCity(`${import.meta.env.BASE_URL}data/manhattan.json`);
-scene.add(buildCityMeshes(city));
-const grid = new CollisionGrid(city);
+// One stage at a time. Switching stages removes the old city and builds the new one.
+let city: CityData, grid: CollisionGrid, cityGroup: THREE.Object3D | undefined;
+let stageIdx = Math.max(0, STAGES.findIndex(s => s.id === new URLSearchParams(location.search).get('stage')));
 
 const heli = buildHeliModel();
 scene.add(heli.root);
@@ -51,13 +59,8 @@ function openSpot(x: number, z: number): THREE.Vector2 {
 
 interface Waypoint { pos: THREE.Vector3; label: string; marker: THREE.Object3D; done: boolean; }
 const WP_RADIUS = 28;
-const wpDefs: [number, number, number, string][] = [
-  [-300, 250, 110, STR.checkpoint(1)],
-  [150, -50, 70, STR.checkpoint(2)],
-  [420, -450, 40, STR.checkpoint(3)],
-  [700, -700, 22, STR.destination],
-];
-const waypoints: Waypoint[] = wpDefs.map(([x, z, y, label]) => {
+let waypoints: Waypoint[] = [];
+function buildWaypoint([x, z, y]: number[], i: number, last: boolean): Waypoint {
   const s = openSpot(x, z);
   const g = new THREE.Group();
   const m = new THREE.LineBasicMaterial({ color: 0xffb36b, fog: false });
@@ -70,18 +73,46 @@ const waypoints: Waypoint[] = wpDefs.map(([x, z, y, label]) => {
     new THREE.LineBasicMaterial({ color: 0xffb36b, transparent: true, opacity: 0.4, fog: false })));
   g.position.set(s.x, y, s.y);
   scene.add(g);
-  return { pos: new THREE.Vector3(s.x, y, s.y), label, marker: g, done: false };
+  return { pos: new THREE.Vector3(s.x, y, s.y), label: last ? STR.destination : STR.checkpoint(i + 1), marker: g, done: false };
+}
+const disposeTree = (o: THREE.Object3D) => o.traverse(c => {
+  const m = c as THREE.Mesh;
+  m.geometry?.dispose();
+  (Array.isArray(m.material) ? m.material : m.material ? [m.material] : []).forEach(x => x.dispose());
 });
+
+const START = new THREE.Vector3();
+async function loadStage(i: number) {
+  loading = true;
+  const st = STAGES[i];
+  let next: CityData;
+  try { next = await loadCity(`${import.meta.env.BASE_URL}data/${st.file}`); } finally { loading = false; }
+  // The rest runs in one task, so no key or frame sees a half-built stage.
+  if (cityGroup) { scene.remove(cityGroup); disposeTree(cityGroup); }
+  waypoints.forEach(w => { scene.remove(w.marker); disposeTree(w.marker); });
+  labelDefs.forEach(l => l.el?.remove());
+  active.clear();
+  stageIdx = i; city = next; grid = new CollisionGrid(city);
+  cityGroup = buildCityMeshes(city);
+  scene.add(cityGroup);
+  waypoints = st.goals.map((g, k) => buildWaypoint(g, k, k === st.goals.length - 1));
+  labelDefs = makeLabels(city);
+  const sp = openSpot(st.start[0], st.start[1]);
+  START.set(sp.x, st.start[2], sp.y);
+}
 
 // ---------- building name labels ----------
 // Declutter policy: a few landmark labels (tall, known height) + one "focus" label for the
 // building nearest the view centre. Labels are sticky per building so they don't flicker.
 interface Label { name: string; h: number; u: boolean; pos: THREE.Vector3; el?: HTMLDivElement; }
-const labelDefs: Label[] = city.buildings.filter(b => b.n).map(b => {
+const makeLabels = (c: CityData): Label[] => c.buildings.flatMap(b => {
+  const name = labelName(b.n);
+  if (!name) return [];
   let cx = 0, cz = 0; const n = b.p.length / 2;
   for (let i = 0; i < b.p.length; i += 2) { cx += b.p[i]; cz += b.p[i + 1]; }
-  return { name: b.n!, h: b.h, u: !!b.u, pos: new THREE.Vector3(cx / n, b.h, cz / n) };
+  return [{ name, h: b.h, u: !!b.u, pos: new THREE.Vector3(cx / n, b.h, cz / n) }];
 });
+let labelDefs: Label[] = [];
 const MAX_LANDMARKS = 4, LANDMARK_MIN_H = 110, LANDMARK_RANGE = 800, FOCUS_RANGE = 380;
 let labelsOn = true;
 addEventListener('keydown', e => { if (e.code === 'KeyL') labelsOn = !labelsOn; });
@@ -134,8 +165,6 @@ function updateLabels() {
 }
 
 // ---------- game state ----------
-const startPos = openSpot(-650, 650);
-const START = new THREE.Vector3(startPos.x, 130, startPos.y);
 const heliState: HeliState = { pos: START.clone(), yaw: 0, fwd: 0, vy: 0, yawRate: 0 };
 let current = 0, elapsed = 0, crashes = 0, crashTimer = 0, checkpoint = -1;
 
@@ -149,7 +178,22 @@ function respawn() {
   heliState.fwd = heliState.vy = heliState.yawRate = 0;
   snapCamera();
 }
-function start() { phase = 'playing'; big(''); }
+function start() { restart(); }
+function titleHtml() {
+  const list = STAGES.map((st, i) => `<div class="stage${i === stageIdx ? ' sel' : ''}"><kbd>${i + 1}</kbd>${st.name}</div>`).join('');
+  return `<b>${STAGES[stageIdx].name}</b>${STR.titleBody}<div class="stages"><div class="hint">${STR.stageSelect}</div>${list}</div><div class="start">${STR.startHint}</div>`;
+}
+function toTitle() {
+  restart();
+  phase = 'ready';
+  big(titleHtml(), true);
+}
+async function selectStage(i: number) {
+  if (i === stageIdx) return;
+  big(`<b>${STAGES[i].name}</b>${STR.loading}`);
+  await loadStage(i);
+  toTitle();
+}
 function restart() {
   waypoints.forEach(w => (w.done = false));
   current = 0; elapsed = 0; crashes = 0; checkpoint = -1; crashTimer = 0;
@@ -157,7 +201,7 @@ function restart() {
   phase = 'playing';
   big('');
 }
-function big(html: string) { $('big').innerHTML = html; }
+function big(html: string, title = false) { $('big').innerHTML = html; $('big').classList.toggle('title', title); }
 
 // ---------- camera ----------
 const camPos = new THREE.Vector3();
@@ -174,8 +218,9 @@ function updateCamera(dt: number) {
 }
 
 // ---------- loop ----------
+await loadStage(stageIdx);
 respawn();
-big(`<b>${STR.title}</b>${STR.titleBody}`);
+big(titleHtml(), true);
 if (location.search.includes('autostart')) start(); // dev: skip title screen
 $('help').innerHTML = STR.help;
 $('credit').innerHTML = `<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">${STR.credit}</a>`;
@@ -240,7 +285,10 @@ if (location.search.includes('test')) {
     get crashes() { return crashes; },
     get labelCount() { return active.size; },
     get drawCalls() { return renderer.info.render.calls; },
-    heli: heliState, waypoints, city, grid, scene, camera,
+    get waypoints() { return waypoints; }, get city() { return city; }, get grid() { return grid; },
+    get stage() { return STAGES[stageIdx].id; }, get loading() { return loading; },
+    stages: STAGES.map(s => s.id), loadStage: (i: number) => selectStage(i),
+    heli: heliState, scene, camera,
     get rotorAngle() { return heli.rotor.rotation.y; },
     teleport(x: number, y: number, z: number) { heliState.pos.set(x, y, z); heliState.fwd = heliState.vy = 0; },
     press(code: string) { keys.add(code); }, release(code: string) { keys.delete(code); },

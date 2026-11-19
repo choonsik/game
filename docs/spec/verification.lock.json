@@ -1,6 +1,6 @@
 {
-  "version": "0.6.0",
-  "requirementsHash": "adbe6aad1480b0c9",
+  "version": "0.8.0",
+  "requirementsHash": "fb37fe648b9d9430",
   "tests": {
     "REQ-COL-001": [
       "hits inside the outline",
@@ -35,6 +35,9 @@
     "REQ-CTL-004": [
       "puts the camera behind and above the helicopter"
     ],
+    "REQ-CTL-005": [
+      "key ESC stops the mission and shows the title screen"
+    ],
     "REQ-DEP-001": [
       "builds with the repository name as the base path",
       "reads the map data through the base URL and not through a root path",
@@ -62,6 +65,17 @@
     "REQ-GAME-005": [
       "shows all HUD fields and the direction arrow"
     ],
+    "REQ-GAME-013": [
+      "has four stages in the set order",
+      "loads stage ${i + 1} and completes its mission"
+    ],
+    "REQ-GAME-014": [
+      "lists all stages on the title screen and selects one with a number key",
+      "selects a stage with the URL parameter stage"
+    ],
+    "REQ-GAME-015": [
+      "shows a readable stage list with a marked selection"
+    ],
     "REQ-LBL-001": [
       "shows at most five labels in any view"
     ],
@@ -73,6 +87,11 @@
     ],
     "REQ-LBL-004": [
       "shows no building names on the title screen"
+    ],
+    "REQ-LBL-005": [
+      "gives only ASCII label names in all stages, and each stage keeps labels",
+      "hides a name that is not in Latin letters",
+      "removes accents and changes typographic marks to ASCII"
     ],
     "REQ-MAP-001": [
       "has more than 2000 buildings with valid outlines and heights",
@@ -91,8 +110,16 @@
       "shows the OpenStreetMap credit with a link to the license page",
       "shows the credit on the title screen"
     ],
+    "REQ-MAP-006": [
+      "has one data file for each stage with the stage center and size",
+      "makes all stage files with the same script"
+    ],
+    "REQ-MAP-007": [
+      "stacks a tower as smaller prisms that do not grow upward"
+    ],
     "REQ-PERF-001": [
-      "uses at most 100 draw calls for each frame"
+      "uses at most 100 draw calls for each frame",
+      "uses at most 100 draw calls in stage ${i + 1}"
     ],
     "REQ-PLAT-001": [
       "loads a WebGL canvas and static data without errors",

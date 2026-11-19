@@ -41,7 +41,9 @@ describe('map data', () => {
   it('[REQ-MAP-004] comes from one static file and a repeatable script', () => {
     expect(raw.center.lat).toBeCloseTo(40.758, 3);
     const script = readFileSync('scripts/fetch-osm.mjs', 'utf8');
-    expect(script).toContain('public/data/manhattan.json');
+    const stages = JSON.parse(readFileSync('src/stages.json', 'utf8'));
+    expect(stages.find((s: { id: string }) => s.id === 'midtown').file).toBe('manhattan.json');
+    expect(script).toContain('public/data/');
     expect(script).toContain('overpass');
   });
 

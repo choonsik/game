@@ -269,6 +269,96 @@ try {
     assert(orange / n > 0.00005, `orange pixels ${(100 * orange / n).toFixed(3)} percent`);
   });
 
+  await page.close();
+
+  // ---------- stages ----------
+  const NAMES = ['MIDTOWN MANHATTAN', 'LOWER MANHATTAN', 'PARIS', 'TOKYO'];
+  const sp = await open('?test');
+  const bigTitle = p => p.evaluate(() => document.querySelector('#big b')?.innerText ?? '');
+  await check('[REQ-GAME-014] lists all stages on the title screen and selects one with a number key', async () => {
+    const t = await sp.evaluate(() => document.getElementById('big').innerText);
+    for (const n of NAMES) assert(t.includes(n), 'title screen lacks ' + n);
+    assert((await bigTitle(sp)) === NAMES[0], 'default stage name: ' + (await bigTitle(sp)));
+    await sp.keyboard.press('Digit3');
+    await sp.waitForFunction('window.__game.stage === "paris" && !window.__game.loading', { timeout: 90000 });
+    await G(sp, 'g.step(0.2)');
+    assert((await bigTitle(sp)) === 'PARIS', 'title shows ' + (await bigTitle(sp)));
+    assert((await G(sp, 'g.phase')) === 'ready', 'phase is ' + (await G(sp, 'g.phase')));
+    await sp.keyboard.press('Enter');
+    await G(sp, 'g.step(0.5)');
+    assert((await G(sp, 'g.phase')) === 'playing', 'ENTER did not start the Paris stage');
+  });
+
+  await check('[REQ-CTL-005] key ESC stops the mission and shows the title screen', async () => {
+    await key(sp, 'KeyW', 1);
+    await sp.keyboard.press('Escape');
+    await G(sp, 'g.step(0.2)');
+    assert((await G(sp, 'g.phase')) === 'ready', 'phase is ' + (await G(sp, 'g.phase')));
+    assert((await bigTitle(sp)) === 'PARIS', 'title shows ' + (await bigTitle(sp)));
+    assert((await G(sp, 'g.labelCount')) === 0, 'names visible on the title screen');
+  });
+
+  await check('[REQ-GAME-015] shows a readable stage list with a marked selection', async () => {
+    const r = await sp.evaluate(() => {
+      const rows = [...document.querySelectorAll('#big .stage')];
+      const st = el => getComputedStyle(el);
+      return {
+        n: rows.length,
+        sel: rows.map(e => e.classList.contains('sel')),
+        size: Math.min(...rows.map(e => parseFloat(st(e).fontSize))),
+        opacity: Math.min(...rows.map(e => parseFloat(st(e).opacity))),
+        keys: rows.map(e => e.querySelector('kbd')?.innerText ?? ''),
+        selBorder: rows[2] && st(rows[2]).borderTopColor, otherBorder: rows[0] && st(rows[0]).borderTopColor,
+        backdrop: st(document.getElementById('big')).backgroundImage,
+      };
+    });
+    assert(r.n === 4, 'stage rows: ' + r.n);
+    assert(JSON.stringify(r.sel) === '[false,false,true,false]', 'selected row: ' + r.sel);
+    assert(r.size >= 15, 'stage text is ' + r.size + ' px');
+    assert(r.opacity >= 0.9, 'stage text opacity is ' + r.opacity);
+    assert(r.keys.join() === '1,2,3,4', 'key badges: ' + r.keys);
+    assert(r.selBorder !== r.otherBorder, 'selected row has the same border color');
+    assert(r.backdrop && r.backdrop !== 'none', 'no dark backdrop behind the title text');
+    await sp.screenshot({ path: 'artifacts/screenshot-title.png' });
+  });
+
+  await check('[REQ-GAME-014] selects a stage with the URL parameter stage', async () => {
+    const p = await open('?test&stage=tokyo');
+    assert((await G(p, 'g.stage')) === 'tokyo', 'stage is ' + (await G(p, 'g.stage')));
+    assert((await bigTitle(p)) === 'TOKYO', 'title shows ' + (await bigTitle(p)));
+    await p.close();
+  });
+
+  for (let i = 0; i < NAMES.length; i++) {
+    await check(`[REQ-GAME-013] loads stage ${i + 1} and completes its mission`, async () => {
+      await G(sp, `g.loadStage(${i})`);
+      assert((await G(sp, 'g.stage')) === (await G(sp, `g.stages[${i}]`)), 'stage did not change');
+      assert((await G(sp, 'g.city.buildings.length')) > 500, 'city not loaded');
+      assert((await G(sp, 'g.waypoints.length')) === 4, 'goal count');
+      const blocked = await G(sp, 'g.waypoints.filter(w => g.grid.hit(w.pos.x, w.pos.y, w.pos.z, 6)).length');
+      assert(blocked === 0, `${blocked} goals touch a building`);
+      await sp.keyboard.press('Enter');
+      await G(sp, 'g.step(1)');
+      assert((await G(sp, 'g.phase')) === 'playing' && (await G(sp, 'g.crashes')) === 0, 'crash at the start point');
+      for (let k = 0; k < 4; k++) await G(sp, `{ const w = g.waypoints[${k}].pos; g.teleport(w.x, w.y, w.z); g.step(0.05); }`);
+      assert((await G(sp, 'g.phase')) === 'won', 'phase is ' + (await G(sp, 'g.phase')));
+    });
+    await check(`[REQ-PERF-001] uses at most 100 draw calls in stage ${i + 1}`, async () => {
+      await sp.keyboard.press('KeyR');
+      await G(sp, 'g.teleport(0, 150, 0); g.step(1)');
+      await new Promise(r => setTimeout(r, 300));
+      const calls = await G(sp, 'g.drawCalls');
+      assert(calls > 0 && calls <= 100, `${calls} draw calls`);
+      // A view from the start point of each stage, for review by eye.
+      await sp.keyboard.press('KeyR');
+      await G(sp, 'g.step(2)');
+      await new Promise(r => setTimeout(r, 300));
+      writeFileSync(`artifacts/screenshot-stage${i + 1}.png`, await sp.screenshot({ type: 'png' }));
+      await sp.keyboard.press('Escape');
+    });
+  }
+  await sp.close();
+
   await check('[REQ-DEP-001] runs the production build from the /game/ subpath', async () => {
     // One output folder for each run: a stale server from an old run can lock an old folder on Windows.
     const outDir = `artifacts/dist-test-${Date.now()}`;

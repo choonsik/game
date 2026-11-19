@@ -1,6 +1,6 @@
 # Manhattan Heli
 
-A line-art helicopter game. Fly over Midtown Manhattan. Avoid the buildings. Reach the destination.
+A line-art helicopter game. Fly over Midtown Manhattan, Lower Manhattan, Paris, and Tokyo. Avoid the buildings. Reach the destination.
 
 The buildings, roads, and parks come from real map data.
 
@@ -15,7 +15,7 @@ npm install
 npm run dev
 ```
 
-Open the address that the command prints. Press ENTER to start.
+Open the address that the command prints. Press 1 to 4 to select a stage. Press ENTER to start.
 
 ## Controls
 
@@ -26,6 +26,8 @@ Open the address that the command prints. Press ENTER to start.
 | SPACE / SHIFT | Climb and descend |
 | R | Restart the mission |
 | L | Show or hide building names |
+| 1 to 4 | Select a stage on the title screen |
+| ESC | Stop the mission and go back to the title screen |
 
 ## Verify
 
@@ -53,7 +55,7 @@ The spec, the requirements, and the change rules are in [docs/spec/SPEC.md](docs
 
 Map data: OpenStreetMap contributors. The data is available under the [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/1-0/).
 
-The file `public/data/manhattan.json` is a derived database. Run `npm run fetch-osm` to make it again. See [NOTICE.md](NOTICE.md).
+Each file in `public/data/` is a derived database. Run `npm run fetch-osm` to make them again. To make one stage only, add the stage ID, for example `npm run fetch-osm -- paris`. The stage list is in `src/stages.json`. See [NOTICE.md](NOTICE.md).
 
 ## License
 

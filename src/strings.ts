@@ -1,8 +1,10 @@
 // All player-facing text. Style: ASD-STE100 (short sentences, active voice, ASCII only).
 // scripts/check-text.mjs lints this file. Do not put UI text anywhere else.
 export const STR = {
-  title: 'MANHATTAN',
-  titleBody: 'Fly the helicopter to the destination.\nDo not hit a building.\n\nPress ENTER or SPACE to start.',
+  stageSelect: 'Press 1 to 4 to select a stage.',
+  loading: 'Loading the map.',
+  titleBody: 'Fly the helicopter to the destination.\nDo not hit a building.',
+  startHint: 'Press ENTER or SPACE to start.',
   crash: 'CRASH',
   crashBody: 'Restart at the last checkpoint.',
   win: 'DESTINATION REACHED',
@@ -14,5 +16,5 @@ export const STR = {
     time: 'TIME', alt: 'ALT', speed: 'SPD', crashes: 'CRASHES', dist: 'DIST', altDiff: 'ALT DIFF',
   },
   credit: 'Map data: OpenStreetMap contributors (ODbL)',
-  help: 'W/S: FORWARD/BACK   A/D: TURN   SPACE/SHIFT: CLIMB/DESCEND   R: RESTART   L: NAMES',
+  help: 'W/S: FORWARD/BACK   A/D: TURN   SPACE/SHIFT: CLIMB/DESCEND   R: RESTART   L: NAMES   ESC: STAGES',
 } as const;

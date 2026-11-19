@@ -2,6 +2,21 @@
 
 Newest version first. The first heading must show the current version.
 
+## 0.8.0 (2026-11-19)
+
+- Changed the stage list on the title screen. It is easier to read: larger text, key badges, a marked selection, and a dark area behind the text (REQ-GAME-015).
+- Building labels use only ASCII. The game removes accents. It hides a label that is not in Latin letters (REQ-LBL-005).
+
+## 0.7.0 (2026-11-19)
+
+- Added three stages: Lower Manhattan, Paris, and Tokyo (REQ-GAME-013).
+- Added the stage list on the title screen. Keys 1 to 4 select a stage (REQ-GAME-014).
+- Added key ESC. It stops the mission and shows the title screen (REQ-CTL-005).
+- Changed the data script. It reads the stage list and makes one file for each stage (REQ-MAP-006).
+- The data script makes a tower into four stacked prisms (REQ-MAP-007).
+- The data script uses the English name of a building if the data has one.
+- Set REQ-GAME-010 to implemented. The title screen now shows the stage name.
+
 ## 0.6.0 (2026-11-18)
 
 - Added the Vercel deploy job. It runs after verification (REQ-DEP-003).

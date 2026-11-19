@@ -1,0 +1,26 @@
+[
+  {
+    "id": "midtown", "name": "MIDTOWN MANHATTAN", "file": "manhattan.json",
+    "center": { "lat": 40.758, "lon": -73.9855 }, "half": 900,
+    "start": [-650, 650, 130],
+    "goals": [[-300, 250, 110], [150, -50, 70], [420, -450, 40], [700, -700, 22]]
+  },
+  {
+    "id": "lower", "name": "LOWER MANHATTAN", "file": "lower-manhattan.json",
+    "center": { "lat": 40.7075, "lon": -74.011 }, "half": 900,
+    "start": [-250, 780, 90],
+    "goals": [[40, 40, 60], [-60, -470, 90], [250, -500, 150], [420, -660, 45]]
+  },
+  {
+    "id": "paris", "name": "PARIS", "file": "paris.json",
+    "center": { "lat": 48.8661, "lon": 2.299 }, "half": 1000,
+    "start": [-290, -760, 80],
+    "goals": [[-780, 430, 45], [-330, 740, 200], [80, 450, 40], [850, -350, 30]]
+  },
+  {
+    "id": "tokyo", "name": "TOKYO", "file": "tokyo.json",
+    "center": { "lat": 35.6905, "lon": 139.696 }, "half": 900,
+    "start": [600, 0, 120],
+    "goals": [[100, -60, 120], [-370, 195, 60], [-470, 560, 250], [-760, 800, 80]]
+  }
+]

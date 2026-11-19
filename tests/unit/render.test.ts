@@ -20,13 +20,13 @@ describe('line-art geometry', () => {
   });
 
   it('[REQ-VIS-002] has no invalid or black edge color', () => {
-    let min = Infinity;
-    for (let i = 0; i < col.count; i++) {
-      for (const v of [col.getX(i), col.getY(i), col.getZ(i)]) {
-        expect(Number.isFinite(v)).toBe(true);
-        min = Math.min(min, v);
-      }
+    // One expect per value took more than 5 s. Collect first, then assert once.
+    let min = Infinity, invalid = 0;
+    for (const v of col.array as Float32Array) {
+      if (!Number.isFinite(v)) invalid++;
+      else min = Math.min(min, v);
     }
+    expect(invalid).toBe(0);
     expect(min).toBeGreaterThanOrEqual(0.5); // black lines hid the vertical edges in 0.1.0
   });
 

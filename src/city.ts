@@ -150,3 +150,16 @@ function distToPolygon(x: number, z: number, p: number[]): number {
   }
   return inside ? 0 : best;
 }
+
+/** Label text for a building name (REQ-LBL-005): accents and typographic marks become ASCII.
+ *  A name that is still not ASCII (for example Japanese) gives no label. */
+export function labelName(n: string | undefined): string | undefined {
+  if (!n) return undefined;
+  const s = n.normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .replace(/[‘’ʼ]/g, "'").replace(/[“”]/g, '"')
+    .replace(/[‐-―]/g, '-').replace(/…/g, '...')
+    .replace(/ß/g, 'ss').replace(/æ/g, 'ae').replace(/œ/g, 'oe')
+    .replace(/Æ/g, 'AE').replace(/Œ/g, 'OE').replace(/ø/g, 'o').replace(/Ø/g, 'O')
+    .replace(/\s+/g, ' ').trim();
+  return s && /^[\x20-\x7e]+$/.test(s) ? s : undefined;
+}
